@@ -1,4 +1,5 @@
 const axios = require("axios"); 
+require('dotenv').config();
 
 class WeatherService  {
     apiKey = undefined;
@@ -19,6 +20,5 @@ class WeatherService  {
 
 }
 
-
-
-module.exports = WeatherService;
+const weatherService = new WeatherService(process.env.API_KEY, process.env.WEATHER_API_URL)
+module.exports = weatherService;
