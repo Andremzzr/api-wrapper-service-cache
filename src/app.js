@@ -1,5 +1,6 @@
 const express = require('express');
 const weatherRoutes = require("./routes/weather");
+
 require('dotenv').config()
 
 //APP CONFIG
