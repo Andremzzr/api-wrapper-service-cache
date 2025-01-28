@@ -4,19 +4,25 @@ const weatherService = require('../services/weatherService'); // Adjust path as 
 // Controller for weather endpoint
 async function getWeatherData(req, res, next) {
     try {
-        const { city } = req.body;
+        const { city, include } = req.body;
 
         if (!city) {
             return res.status(400).json({ error: "City is required" });
         }
 
+        let apiSearchHash = city;
+        
+        if ( include ) {
+            apiSearchHash = `${city}_i=${include.join('_')}`;
+        }
+
         // Check cache
-        const cachedData = await cacheService.getValue(city);
+        const cachedData = await cacheService.getValue(apiSearchHash);
 
         let responseData;
         if (!cachedData) {
             // Fetch from weather service if not cached
-            responseData = await weatherService.getWeather(city);
+            responseData = await weatherService.getWeather(apiSearchHash);
             await cacheService.setValue(city, JSON.stringify(responseData));
         } else {
             // Use cached data
