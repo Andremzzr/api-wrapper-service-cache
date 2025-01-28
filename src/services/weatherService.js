@@ -11,9 +11,9 @@ class WeatherService  {
         this.baseUrl = baseUrl;
     }
 
-    async getWeather(searchHash) {
-        const city = this.getCity(searchHash);
-        const includes = this.getIncludesParams(searchHash);
+    async getWeather(city, include = []) {
+        const includes = this.getIncludeParams(include);
+        console.log(includes)
         const url = `${this.baseUrl}${city}?unitGroup=metric&key=${this.apiKey}&contentType=json${includes}`;
         console.log(url)
         const response = await axios.get(url);
@@ -21,32 +21,11 @@ class WeatherService  {
         return response.data;
     }
 
-    getCity(searchHash) {
-        if (searchHash.includes('_i=')) {
-            return searchHash.split('_i=')[0]
-        }
-
-        return searchHash
-    }
-
-    getIncludesParams(searchHash) { 
-        let includes = '&include='
-        if (searchHash.includes('_i=')) {
-            const paramsIncluded = []
-            const params = searchHash.split('_i=')[1].split('_');
-            params.forEach(param => {
-                if(this.includeParams.includes(param)) {
-                    paramsIncluded.push(param)
-                    if (paramsIncluded.length > 1) {
-                        includes+=`%2C${param}`;
-                        return
-                    }
-
-                    includes+=param
-                }
-            })
-
-            return includes
+    getIncludeParams(include) { 
+        const validParams = include.filter(param => {if(this.includeParams.includes(param)) {return true}});
+        
+        if( validParams.length > 0 ) {
+            return `&include=${encodeURI(validParams.join(','))}`
         }
 
         return ''

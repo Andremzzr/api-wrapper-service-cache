@@ -10,11 +10,7 @@ async function getWeatherData(req, res, next) {
             return res.status(400).json({ error: "City is required" });
         }
 
-        let apiSearchHash = city;
-        
-        if ( include ) {
-            apiSearchHash = `${city}_i=${include.join('_')}`;
-        }
+        const apiSearchHash = include ? `${city}_i=${include.join('_')}` : city;
 
         // Check cache
         const cachedData = await cacheService.getValue(apiSearchHash);
@@ -22,7 +18,7 @@ async function getWeatherData(req, res, next) {
         let responseData;
         if (!cachedData) {
             // Fetch from weather service if not cached
-            responseData = await weatherService.getWeather(apiSearchHash);
+            responseData = await weatherService.getWeather(city, include);
             await cacheService.setValue(city, JSON.stringify(responseData));
         } else {
             // Use cached data
